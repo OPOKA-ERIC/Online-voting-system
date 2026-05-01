@@ -55,6 +55,8 @@ class VoteController extends Controller
             'voted_at'         => now()->format('Y-m-d H:i:s'),
             'election_id'      => $election->id,
         ]);
+    }
+
     public function confirmation()
     {
         return view('voter.confirmation');
