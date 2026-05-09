@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Candidate extends Model
 {
-    protected $fillable = ['election_id', 'name', 'photo', 'bio'];
+    protected $fillable = ['election_id', 'position_id', 'name', 'photo', 'bio'];
+
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
 
     public function election()
     {

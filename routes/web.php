@@ -6,7 +6,7 @@ use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\VoteController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VoterUploadController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,6 +29,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::resource('elections', ElectionController::class);
     Route::resource('candidates', CandidateController::class);
+    Route::get('/voters/upload', [VoterUploadController::class, 'create'])->name('voters.upload');
+    Route::post('/voters/upload', [VoterUploadController::class, 'store'])->name('voters.upload.store');
 });
 
 Route::middleware(['auth', 'voter'])->prefix('voter')->name('voter.')->group(function () {

@@ -80,16 +80,29 @@
                         <i class="bi bi-calendar2-check me-1 text-primary"></i>Election
                         <span class="text-danger">*</span>
                     </label>
-                    <select name="election_id" class="form-select form-select-lg" required>
+                    <select name="election_id" id="election_id" class="form-select form-select-lg" required>
                         <option value="">— Select an Election —</option>
                         @foreach($elections as $e)
-                            <option value="{{ $e->id }}" {{ old('election_id') == $e->id ? 'selected' : '' }}>
+                            <option value="{{ $e->id }}" {{ old('election_id') == $e->id ? 'selected' : '' }}
+                                data-positions='{{ $e->positions->toJson() }}'>
                                 {{ $e->title }}
                                 ({{ $e->status === 'active' ? '🟢 Active' : ($e->status === 'upcoming' ? '🟡 Upcoming' : '🔴 Closed') }})
                             </option>
                         @endforeach
                     </select>
                     <div class="form-text">Choose the election this candidate is running in.</div>
+                </div>
+
+                <!-- Position -->
+                <div class="mb-4" id="position-wrapper" style="display:none;">
+                    <label class="form-label">
+                        <i class="bi bi-award me-1 text-primary"></i>Post Being Contested For
+                        <span class="text-danger">*</span>
+                    </label>
+                    <select name="position_id" id="position_id" class="form-select form-select-lg">
+                        <option value="">— Select a Position —</option>
+                    </select>
+                    <div class="form-text">Select the post this candidate is contesting for.</div>
                 </div>
 
                 <!-- Name -->
@@ -143,12 +156,11 @@
 
 @section('scripts')
 <script>
+    // Photo preview
     document.getElementById('photo').addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
-
         document.getElementById('file-name').textContent = file.name;
-
         const reader = new FileReader();
         reader.onload = function (e) {
             const preview = document.getElementById('photo-preview');
@@ -158,6 +170,28 @@
             placeholder.style.display = 'none';
         };
         reader.readAsDataURL(file);
+    });
+
+    // Load positions when election is selected
+    document.getElementById('election_id').addEventListener('change', function () {
+        const selected = this.options[this.selectedIndex];
+        const positionWrapper = document.getElementById('position-wrapper');
+        const positionSelect  = document.getElementById('position_id');
+        const positions = JSON.parse(selected.dataset.positions || '[]');
+
+        positionSelect.innerHTML = '<option value="">— Select a Position —</option>';
+
+        if (positions.length > 0) {
+            positions.forEach(function (p) {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name;
+                positionSelect.appendChild(opt);
+            });
+            positionWrapper.style.display = 'block';
+        } else {
+            positionWrapper.style.display = 'none';
+        }
     });
 </script>
 @endsection

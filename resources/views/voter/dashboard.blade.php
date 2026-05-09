@@ -46,12 +46,9 @@
                             <small class="text-muted"><i class="bi bi-people me-2 text-success"></i>{{ $election->candidates->count() }} candidate(s)</small>
                         </div>
                     </div>
-                    <div class="card-footer bg-white border-0 p-3 d-flex gap-2">
-                        <a href="{{ route('voter.vote', $election->id) }}" class="btn btn-primary btn-sm flex-fill">
+                    <div class="card-footer bg-white border-0 p-3">
+                        <a href="{{ route('voter.vote', $election->id) }}" class="btn btn-primary btn-sm w-100">
                             <i class="bi bi-check2-square me-1"></i> Vote Now
-                        </a>
-                        <a href="{{ route('voter.results', $election->id) }}" class="btn btn-outline-secondary btn-sm flex-fill">
-                            <i class="bi bi-bar-chart me-1"></i> Results
                         </a>
                     </div>
                 </div>

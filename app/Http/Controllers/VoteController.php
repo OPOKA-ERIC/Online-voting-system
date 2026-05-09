@@ -20,41 +20,41 @@ class VoteController extends Controller
 
     public function show($id)
     {
-        $election = Election::findOrFail($id);
-        $candidates = $election->candidates;
+        $election = Election::with(['positions.candidates'])->findOrFail($id);
         $hasVoted = Vote::where('user_id', auth()->id())->where('election_id', $id)->exists();
-
-        return view('voter.candidates', compact('election', 'candidates', 'hasVoted'));
+        $votedPositionIds = Vote::where('user_id', auth()->id())
+            ->where('election_id', $id)
+            ->pluck('position_id')
+            ->toArray();
+        return view('voter.candidates', compact('election', 'hasVoted', 'votedPositionIds'));
     }
 
     public function store(Request $request)
     {
         $election = Election::findOrFail($request->election_id);
 
-        // Rule 1: Active period check
         if (now() < $election->start_date || now() > $election->end_date) {
             return back()->with('error', 'This election is not currently active.');
         }
 
-        // Rule 2: Double vote check
-        $alreadyVoted = Vote::where('user_id', auth()->id())->where('election_id', $election->id)->exists();
+        // Check if already voted for this position
+        $alreadyVoted = Vote::where('user_id', auth()->id())
+            ->where('election_id', $election->id)
+            ->where('position_id', $request->position_id)
+            ->exists();
+
         if ($alreadyVoted) {
-            return back()->with('error', 'You have already voted in this election.');
+            return back()->with('error', 'You have already voted for this position.');
         }
 
-        // Save the vote
         $vote = Vote::create([
             'user_id'      => auth()->id(),
             'election_id'  => $election->id,
             'candidate_id' => $request->candidate_id,
+            'position_id'  => $request->position_id,
         ]);
 
-        return redirect()->route('voter.confirmation')->with([
-            'election_title'   => $election->title,
-            'candidate_name'   => $vote->candidate->name,
-            'voted_at'         => now()->format('Y-m-d H:i:s'),
-            'election_id'      => $election->id,
-        ]);
+        return redirect()->route('voter.vote', $election->id)->with('success', 'Your vote has been cast successfully!');
     }
 
     public function confirmation()

@@ -24,7 +24,13 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
+        'election_id',
     ];
+
+    public function election()
+    {
+        return $this->belongsTo(Election::class);
+    }
 
     public function votes()
     {

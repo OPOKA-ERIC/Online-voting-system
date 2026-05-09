@@ -30,7 +30,11 @@
                 @forelse($elections as $election)
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding:1rem 1.2rem; color:rgba(255,255,255,0.4);">{{ $loop->iteration }}</td>
-                    <td class="fw-semibold">{{ $election->title }}</td>
+                    <td class="fw-semibold">
+                        <a href="{{ route('admin.elections.show', $election) }}" style="color:inherit; text-decoration:none;">
+                            {{ $election->title }}
+                        </a>
+                    </td>
                     <td style="color:rgba(255,255,255,0.5); font-size:.88rem;">{{ Str::limit($election->description, 50) }}</td>
                     <td style="color:rgba(255,255,255,0.6); font-size:.88rem;">{{ $election->start_date->format('Y-m-d H:i') }}</td>
                     <td style="color:rgba(255,255,255,0.6); font-size:.88rem;">{{ $election->end_date->format('Y-m-d H:i') }}</td>

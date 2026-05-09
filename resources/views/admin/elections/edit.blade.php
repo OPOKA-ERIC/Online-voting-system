@@ -33,6 +33,23 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">Positions / Posts Being Contested</label>
+                            <div id="positions-wrapper">
+                                @foreach($election->positions as $position)
+                                <div class="input-group mb-2">
+                                    <input type="hidden" name="position_ids[]" value="{{ $position->id }}">
+                                    <input type="text" name="position_names[]" class="form-control"
+                                           value="{{ $position->name }}" placeholder="e.g. Guild President">
+                                    <button type="button" class="btn btn-outline-danger" onclick="removePosition(this)">Remove</button>
+                                </div>
+                                @endforeach
+                            </div>
+                            <button type="button" class="btn btn-outline-success btn-sm mt-1" onclick="addPosition()">
+                                <i class="bi bi-plus-circle me-1"></i>Add Another Position
+                            </button>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label">Start Date</label>
                             <input type="datetime-local" name="start_date" class="form-control"
                                    value="{{ old('start_date', $election->start_date->format('Y-m-d\TH:i')) }}" required>
@@ -54,4 +71,21 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function addPosition() {
+    const wrapper = document.getElementById('positions-wrapper');
+    const div = document.createElement('div');
+    div.className = 'input-group mb-2';
+    div.innerHTML = `<input type="hidden" name="position_ids[]" value="">
+                     <input type="text" name="position_names[]" class="form-control" placeholder="e.g. Woman MP">
+                     <button type="button" class="btn btn-outline-danger" onclick="removePosition(this)">Remove</button>`;
+    wrapper.appendChild(div);
+}
+function removePosition(btn) {
+    btn.closest('.input-group').remove();
+}
+</script>
 @endsection

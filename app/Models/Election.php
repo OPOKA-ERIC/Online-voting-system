@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Election extends Model
 {
-    protected $fillable = ['title', 'description', 'start_date', 'end_date'];
+    protected $fillable = ['title', 'description', 'start_date', 'end_date', 'voters_file'];
 
     protected $casts = [
         'start_date' => 'datetime',
@@ -26,8 +26,18 @@ class Election extends Model
         return $this->hasMany(Candidate::class);
     }
 
+    public function positions()
+    {
+        return $this->hasMany(Position::class);
+    }
+
     public function votes()
     {
         return $this->hasMany(Vote::class);
+    }
+
+    public function voters()
+    {
+        return $this->hasMany(\App\Models\User::class)->where('role', 'voter');
     }
 }

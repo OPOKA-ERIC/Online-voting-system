@@ -4,19 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\Position;
 use Illuminate\Http\Request;
 
 class CandidateController extends Controller
 {
     public function index()
     {
-        $candidates = Candidate::with('election')->latest()->get();
+        $candidates = Candidate::with('election', 'position')->latest()->get();
         return view('admin.candidates.index', compact('candidates'));
     }
 
     public function create()
     {
-        $elections = Election::all();
+        $elections = Election::with('positions')->get();
         return view('admin.candidates.create', compact('elections'));
     }
 
@@ -24,6 +25,7 @@ class CandidateController extends Controller
     {
         $validated = $request->validate([
             'election_id' => 'required|exists:elections,id',
+            'position_id' => 'nullable|exists:positions,id',
             'name'        => 'required|string|max:255',
             'bio'         => 'nullable|string',
             'photo'       => 'nullable|image|max:10240',
@@ -40,13 +42,13 @@ class CandidateController extends Controller
 
     public function show(Candidate $candidate)
     {
-        $candidate->load('election', 'votes');
+        $candidate->load('election', 'position', 'votes');
         return view('admin.candidates.show', compact('candidate'));
     }
 
     public function edit(Candidate $candidate)
     {
-        $elections = Election::all();
+        $elections = Election::with('positions')->get();
         return view('admin.candidates.edit', compact('candidate', 'elections'));
     }
 
@@ -54,6 +56,7 @@ class CandidateController extends Controller
     {
         $validated = $request->validate([
             'election_id' => 'required|exists:elections,id',
+            'position_id' => 'nullable|exists:positions,id',
             'name'        => 'required|string|max:255',
             'bio'         => 'nullable|string',
             'photo'       => 'nullable|image|max:10240',

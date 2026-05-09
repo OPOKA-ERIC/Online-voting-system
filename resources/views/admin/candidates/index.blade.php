@@ -28,6 +28,7 @@
                         <th style="padding:1rem 1.2rem;">#</th>
                         <th>Photo</th>
                         <th>Name</th>
+                        <th>Position</th>
                         <th>Bio</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -50,6 +51,13 @@
                             @endif
                         </td>
                         <td class="fw-semibold">{{ $candidate->name }}</td>
+                        <td>
+                            @if($candidate->position)
+                                <span class="badge" style="background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);">{{ $candidate->position->name }}</span>
+                            @else
+                                <span style="color:rgba(255,255,255,0.3);">—</span>
+                            @endif
+                        </td>
                         <td style="color:rgba(255,255,255,0.5); font-size:.88rem;">{{ Str::limit($candidate->bio, 60) }}</td>
                         <td class="text-center">
                             <a href="{{ route('admin.candidates.edit', $candidate) }}" class="btn btn-sm btn-outline-primary me-1">
