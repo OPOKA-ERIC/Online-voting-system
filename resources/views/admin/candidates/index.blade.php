@@ -5,83 +5,94 @@
 @section('page-subtitle', 'Manage all candidates grouped by election.')
 
 @section('content')
+
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="fw-bold mb-0 text-white"><i class="bi bi-people-fill me-2 text-warning"></i>All Candidates</h5>
-    <a href="{{ route('admin.candidates.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle me-1"></i> New Candidate
+    <div>
+        <h5 class="fw-bold text-white mb-1">All Candidates</h5>
+        <p style="color:rgba(255,255,255,0.35);font-size:.82rem;margin:0;">Grouped by election</p>
+    </div>
+    <a href="{{ route('admin.candidates.create') }}"
+       style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;padding:.6rem 1.2rem;font-size:.88rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;transition:opacity .2s;"
+       onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        <i class="bi bi-person-plus-fill"></i> Add Candidate
     </a>
 </div>
 
 @forelse($candidates->groupBy('election_id') as $electionId => $group)
-    <div class="card mb-4">
-        <div class="card-header d-flex align-items-center gap-2" style="background:rgba(245,158,11,0.1); border-bottom:1px solid rgba(245,158,11,0.2);">
-            <i class="bi bi-calendar2-check text-warning"></i>
-            <span class="fw-semibold text-white">{{ $group->first()->election->title ?? 'Unknown Election' }}</span>
-            <span class="badge ms-auto" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);">
+    <div class="rounded-4 overflow-hidden mb-4" style="border:1px solid rgba(255,255,255,0.08);">
+        <div class="p-3 d-flex align-items-center gap-3" style="background:rgba(245,158,11,0.08);border-bottom:1px solid rgba(245,158,11,0.15);">
+            <div style="width:36px;height:36px;background:rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi bi-calendar2-check" style="color:#fcd34d;"></i>
+            </div>
+            <div class="flex-grow-1">
+                <span style="color:#fff;font-weight:600;font-size:.92rem;">{{ $group->first()->election->title ?? 'Unknown Election' }}</span>
+            </div>
+            <span style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.45);padding:.2rem .7rem;border-radius:50px;font-size:.75rem;font-weight:600;">
                 {{ $group->count() }} candidate(s)
             </span>
         </div>
-        <div class="card-body p-0" style="background:transparent;">
-            <table class="table mb-0 align-middle" style="--bs-table-bg:transparent;--bs-table-hover-bg:rgba(255,255,255,0.04);--bs-table-color:rgba(255,255,255,0.85);--bs-table-border-color:rgba(255,255,255,0.06);">
-                <thead>
-                    <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
-                        <th style="padding:1rem 1.2rem;">#</th>
-                        <th>Photo</th>
-                        <th>Name</th>
-                        <th>Position</th>
-                        <th>Bio</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($group as $candidate)
-                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <td style="padding:1rem 1.2rem; color:rgba(255,255,255,0.4);">{{ $loop->iteration }}</td>
-                        <td>
+        <table class="table mb-0 align-middle" style="--bs-table-bg:transparent;--bs-table-hover-bg:rgba(255,255,255,0.03);--bs-table-color:rgba(255,255,255,0.8);--bs-table-border-color:rgba(255,255,255,0.06);">
+            <thead style="background:rgba(255,255,255,0.03);">
+                <tr>
+                    <th style="padding:.8rem 1.2rem;color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;width:50px;">#</th>
+                    <th style="color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;">Candidate</th>
+                    <th style="color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;">Position</th>
+                    <th style="color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;">Bio</th>
+                    <th style="color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-align:center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($group as $candidate)
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <td style="padding:.9rem 1.2rem;color:rgba(255,255,255,0.25);font-size:.82rem;">{{ $loop->iteration }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
                             @if($candidate->photo)
-                                <img src="{{ asset('storage/' . $candidate->photo) }}"
-                                     alt="{{ $candidate->name }}"
-                                     class="rounded-circle" width="42" height="42"
-                                     style="object-fit:cover; border:2px solid rgba(255,255,255,0.1);">
+                                <img src="{{ asset('storage/' . $candidate->photo) }}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.1);">
                             @else
-                                <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                     style="width:42px;height:42px;background:rgba(255,255,255,0.08);">
-                                    <i class="bi bi-person-fill" style="color:rgba(255,255,255,0.3);"></i>
+                                <div style="width:44px;height:44px;background:linear-gradient(135deg,rgba(99,102,241,0.3),rgba(139,92,246,0.3));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#a5b4fc;font-size:.9rem;flex-shrink:0;">
+                                    {{ strtoupper(substr($candidate->name, 0, 1)) }}
                                 </div>
                             @endif
-                        </td>
-                        <td class="fw-semibold">{{ $candidate->name }}</td>
-                        <td>
-                            @if($candidate->position)
-                                <span class="badge" style="background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);">{{ $candidate->position->name }}</span>
-                            @else
-                                <span style="color:rgba(255,255,255,0.3);">—</span>
-                            @endif
-                        </td>
-                        <td style="color:rgba(255,255,255,0.5); font-size:.88rem;">{{ Str::limit($candidate->bio, 60) }}</td>
-                        <td class="text-center">
-                            <a href="{{ route('admin.candidates.edit', $candidate) }}" class="btn btn-sm btn-outline-primary me-1">
-                                <i class="bi bi-pencil me-1"></i>Edit
+                            <div>
+                                <div style="font-weight:600;color:#fff;">{{ $candidate->name }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        @if($candidate->position)
+                            <span style="background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.25);padding:.25rem .7rem;border-radius:6px;font-size:.78rem;font-weight:600;">{{ $candidate->position->name }}</span>
+                        @else
+                            <span style="color:rgba(255,255,255,0.2);font-size:.82rem;">—</span>
+                        @endif
+                    </td>
+                    <td style="color:rgba(255,255,255,0.4);font-size:.82rem;">{{ Str::limit($candidate->bio, 55) ?? '—' }}</td>
+                    <td style="text-align:center;">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <a href="{{ route('admin.candidates.edit', $candidate) }}"
+                               style="width:32px;height:32px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#a5b4fc;text-decoration:none;transition:all .2s;"
+                               onmouseover="this.style.background='rgba(99,102,241,0.25)'" onmouseout="this.style.background='rgba(99,102,241,0.15)'">
+                                <i class="bi bi-pencil" style="font-size:.8rem;"></i>
                             </a>
-                            <form action="{{ route('admin.candidates.destroy', $candidate) }}" method="POST" class="d-inline"
-                                  onsubmit="return confirm('Delete this candidate?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash me-1"></i>Delete
+                            <form action="{{ route('admin.candidates.destroy', $candidate) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this candidate?')">
+                                @csrf @method('DELETE')
+                                <button type="submit"
+                                        style="width:32px;height:32px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#fca5a5;cursor:pointer;transition:all .2s;"
+                                        onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
+                                    <i class="bi bi-trash" style="font-size:.8rem;"></i>
                                 </button>
                             </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 @empty
-    <div class="card p-5 text-center">
-        <i class="bi bi-people d-block mb-3" style="font-size:2.5rem;color:rgba(255,255,255,0.2);"></i>
-        <p style="color:rgba(255,255,255,0.3);">No candidates found.</p>
+    <div class="text-center py-5 rounded-4" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);">
+        <i class="bi bi-people d-block mb-3" style="font-size:2.5rem;color:rgba(255,255,255,0.15);"></i>
+        <p style="color:rgba(255,255,255,0.25);">No candidates yet. <a href="{{ route('admin.candidates.create') }}" style="color:#a5b4fc;">Add the first candidate →</a></p>
     </div>
 @endforelse
 @endsection
