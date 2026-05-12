@@ -8,6 +8,8 @@ use App\Http\Controllers\ResultController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\VoterUploadController;
 
+use App\Http\Controllers\VoterVerificationController;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -35,6 +37,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 Route::middleware(['auth', 'voter'])->prefix('voter')->name('voter.')->group(function () {
     Route::get('/', [VoteController::class, 'index'])->name('dashboard');
+    Route::get('/verify/{election}', [VoterVerificationController::class, 'show'])->name('verify');
+    Route::post('/verify/{election}', [VoterVerificationController::class, 'verify'])->name('verify.submit');
     Route::get('/election/{id}', [VoteController::class, 'show'])->name('vote');
     Route::post('/vote', [VoteController::class, 'store'])->name('cast');
     Route::get('/confirmation', [VoteController::class, 'confirmation'])->name('confirmation');
