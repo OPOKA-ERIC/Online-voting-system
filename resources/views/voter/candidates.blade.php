@@ -122,9 +122,12 @@
 </div>
 
 <script>
-document.querySelectorAll('[class^="candidate-radio-"]').forEach(radio => {
+document.querySelectorAll('[class*="candidate-radio-"]').forEach(radio => {
     radio.addEventListener('change', function() {
-        const posId = this.className.replace('d-none candidate-radio-', '');
+        const classes = Array.from(this.classList);
+        const radioClass = classes.find(c => c.startsWith('candidate-radio-'));
+        if (!radioClass) return;
+        const posId = radioClass.replace('candidate-radio-', '');
         document.querySelectorAll(`.candidate-card-${posId}`).forEach(card => {
             card.style.borderColor = 'rgba(255,255,255,0.08)';
             card.style.background  = 'rgba(255,255,255,0.04)';

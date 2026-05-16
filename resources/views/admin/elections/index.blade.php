@@ -34,8 +34,10 @@
             <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                 <td style="padding:1rem 1.2rem;color:rgba(255,255,255,0.25);font-size:.82rem;">{{ $loop->iteration }}</td>
                 <td>
-                    <div style="font-weight:600;color:#fff;margin-bottom:.2rem;">{{ $election->title }}</div>
-                    <div style="color:rgba(255,255,255,0.35);font-size:.78rem;">{{ Str::limit($election->description, 55) ?? 'No description' }}</div>
+                    <a href="{{ route('admin.elections.show', $election) }}" style="text-decoration:none;">
+                        <div style="font-weight:600;color:#fff;margin-bottom:.2rem;">{{ $election->title }}</div>
+                    </a>
+                    <div style="color:rgba(255,255,255,0.35);font-size:.78rem;">{{ $election->candidates->count() }} candidate(s)</div>
                 </td>
                 <td>
                     <div style="color:rgba(255,255,255,0.6);font-size:.82rem;"><i class="bi bi-calendar-event me-1" style="color:#6366f1;"></i>{{ $election->start_date->format('M d, Y') }}</div>

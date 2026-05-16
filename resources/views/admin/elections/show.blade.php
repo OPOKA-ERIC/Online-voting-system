@@ -86,6 +86,54 @@
     </div>
 </div>
 
+{{-- Polls / Results per Position --}}
+@if($election->positions->count() > 0)
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+    <h6 class="fw-bold text-white mb-0"><i class="bi bi-bar-chart-fill me-2 text-warning"></i>Poll Results by Position</h6>
+    <small style="color:rgba(255,255,255,0.35);">Total votes cast: {{ $election->votes->count() }}</small>
+</div>
+
+@foreach($election->positions as $position)
+    @php
+        $positionVotes = $election->votes->where('position_id', $position->id)->count();
+    @endphp
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-white mb-0"><i class="bi bi-award me-2" style="color:#a5b4fc;"></i>{{ $position->name }}</h6>
+                <span class="badge" style="background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);">{{ $positionVotes }} vote(s)</span>
+            </div>
+            @forelse($position->candidates as $candidate)
+                @php
+                    $candidateVotes = $election->votes->where('position_id', $position->id)->where('candidate_id', $candidate->id)->count();
+                    $percentage = $positionVotes > 0 ? round($candidateVotes / $positionVotes * 100, 1) : 0;
+                @endphp
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="d-flex align-items-center gap-2">
+                            @if($candidate->photo)
+                                <img src="{{ asset('storage/'.$candidate->photo) }}" width="28" height="28" class="rounded-circle" style="object-fit:cover;">
+                            @else
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:28px;height:28px;background:rgba(99,102,241,0.3);font-size:.75rem;font-weight:700;color:#a5b4fc;">
+                                    {{ strtoupper(substr($candidate->name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <span style="color:rgba(255,255,255,0.85);font-size:.88rem;font-weight:500;">{{ $candidate->name }}</span>
+                        </div>
+                        <span style="color:rgba(255,255,255,0.6);font-size:.85rem;">{{ $candidateVotes }} vote(s) &mdash; {{ $percentage }}%</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.07);border-radius:50px;height:8px;overflow:hidden;">
+                        <div style="width:{{ $percentage }}%;background:linear-gradient(90deg,#6366f1,#06b6d4);height:100%;border-radius:50px;transition:width .5s;"></div>
+                    </div>
+                </div>
+            @empty
+                <p style="color:rgba(255,255,255,0.3);font-size:.85rem;">No candidates added yet.</p>
+            @endforelse
+        </div>
+    </div>
+@endforeach
+@endif
+
 {{-- Uploaded Voters Table --}}
 @if($fileRows->count() > 0)
 <div class="d-flex justify-content-between align-items-center mb-3 mt-4">

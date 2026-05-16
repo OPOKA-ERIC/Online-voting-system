@@ -52,7 +52,7 @@ class ElectionController extends Controller
 
     public function show(Election $election)
     {
-        $election->load(['candidates.votes', 'votes', 'positions']);
+        $election->load(['candidates.votes', 'votes', 'positions.candidates']);
         $voters = $election->voters()->with('votes')->get();
 
         // Parse uploaded file to get all original columns
