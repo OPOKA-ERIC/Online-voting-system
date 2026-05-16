@@ -11,8 +11,63 @@ use App\Http\Controllers\VoterUploadController;
 use App\Http\Controllers\VoterVerificationController;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    // Live stats from DB
+    $stats = [
+        'elections' => \App\Models\Election::count(),
+        'voters'    => \App\Models\User::where('role', 'voter')->count(),
+        'votes'     => \App\Models\Vote::count(),
+        'positions' => \App\Models\Position::count(),
+    ];
+
+    // Hero demo card: most recent active election with its first position + candidates
+    $heroElection = \App\Models\Election::with(['positions.candidates'])
+        ->where('start_date', '<=', now())
+        ->where('end_date', '>=', now())
+        ->latest()->first()
+        ?? \App\Models\Election::with(['positions.candidates'])->latest()->first();
+
+    // Grab the most recent election that has votes for the live chart
+    $chartElection = \App\Models\Election::with(['candidates' => function ($q) {
+        $q->withCount('votes');
+    }])->whereHas('votes')->latest()->first();
+
+    $chartData = null;
+    if ($chartElection) {
+        $total = $chartElection->votes()->count();
+        $chartData = [
+            'title'      => $chartElection->title,
+            'status'     => $chartElection->status,
+            'total'      => $total,
+            'candidates' => $chartElection->candidates->sortByDesc('votes_count')->values()->map(fn($c) => [
+                'name'       => $c->name,
+                'votes'      => $c->votes_count,
+                'percentage' => $total > 0 ? round($c->votes_count / $total * 100, 1) : 0,
+            ])->toArray(),
+        ];
+    }
+
+    $testimonials = \App\Models\Testimonial::where('is_active', true)->get();
+    $faqs = \App\Models\Faq::where('is_active', true)->orderBy('sort_order')->get();
+
+    return view('welcome', compact('chartData', 'stats', 'testimonials', 'faqs', 'heroElection'));
+})->name('home');
+
+// Static footer pages
+Route::get('/features',  fn() => view('static.features'))->name('features');
+Route::get('/elections', fn() => view('static.elections'))->name('elections');
+Route::get('/pricing',   fn() => view('static.pricing'))->name('pricing');
+Route::get('/changelog', fn() => view('static.changelog'))->name('changelog');
+Route::get('/roadmap',   fn() => view('static.roadmap'))->name('roadmap');
+Route::get('/api-docs',  fn() => view('static.api-docs'))->name('api-docs');
+Route::get('/about',     fn() => view('static.about'))->name('about');
+Route::get('/blog',      fn() => view('static.blog'))->name('blog');
+Route::get('/careers',   fn() => view('static.careers'))->name('careers');
+Route::get('/press',     fn() => view('static.press'))->name('press');
+Route::get('/contact',   fn() => view('static.contact'))->name('contact');
+Route::get('/privacy',   fn() => view('static.privacy'))->name('privacy');
+Route::get('/terms',     fn() => view('static.terms'))->name('terms');
+Route::get('/security',  fn() => view('static.security'))->name('security');
+Route::get('/cookies',   fn() => view('static.cookies'))->name('cookies');
 
 Route::get('/dashboard', function () {
     if (auth()->user()->role === 'admin') {

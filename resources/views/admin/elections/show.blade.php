@@ -1,115 +1,152 @@
 @extends('layouts.admin')
 
-@section('page-title', 'Election Details')
+@section('page-title', $election->title)
 @section('page-icon', 'calendar2-check')
-@section('page-subtitle', 'Viewing details for this election.')
+@section('page-subtitle', 'Viewing full details, voters, and results for this election.')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="fw-bold mb-0 text-white"><i class="bi bi-calendar2-check me-2 text-warning"></i>{{ $election->title }}</h5>
+
+{{-- Action bar --}}
+<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-2">
+        @if($election->status === 'active')
+            <span style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);padding:.3rem .9rem;border-radius:50px;font-size:.75rem;font-weight:600;display:inline-flex;align-items:center;gap:.4rem;">
+                <span style="width:6px;height:6px;background:#4ade80;border-radius:50%;animation:pulse 1.5s infinite;"></span>Active
+            </span>
+        @elseif($election->status === 'upcoming')
+            <span style="background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);padding:.3rem .9rem;border-radius:50px;font-size:.75rem;font-weight:600;">
+                <i class="bi bi-clock me-1"></i>Upcoming
+            </span>
+        @else
+            <span style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);padding:.3rem .9rem;border-radius:50px;font-size:.75rem;font-weight:600;">
+                <i class="bi bi-lock me-1"></i>Closed
+            </span>
+        @endif
+    </div>
     <div class="d-flex gap-2">
-        <a href="{{ route('admin.voters.upload', ['election_id' => $election->id]) }}" class="btn btn-success btn-sm">
+        <a href="{{ route('admin.voters.upload', ['election_id' => $election->id]) }}" class="btn btn-sm btn-warning">
             <i class="bi bi-upload me-1"></i>Upload Voters
         </a>
-        <a href="{{ route('admin.elections.edit', $election) }}" class="btn btn-outline-primary btn-sm">
+        <a href="{{ route('admin.elections.edit', $election) }}" class="btn btn-sm btn-outline-primary">
             <i class="bi bi-pencil me-1"></i>Edit
         </a>
-        <a href="{{ route('admin.elections.index') }}" class="btn btn-outline-secondary btn-sm">
+        <a href="{{ route('admin.elections.index') }}" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Back
         </a>
     </div>
 </div>
 
-{{-- Election Info Card --}}
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <small style="color:rgba(255,255,255,0.4);">Title</small>
-                <p class="fw-semibold text-white mb-0">{{ $election->title }}</p>
+{{-- Stats row --}}
+<div class="row g-3 mb-4">
+    @foreach([
+        ['bi-people-fill','indigo', $election->candidates->count(), 'Candidates'],
+        ['bi-check2-square','emerald', $election->votes->count(), 'Votes Cast'],
+        ['bi-person-check-fill','amber', $voters->count(), 'Registered Voters'],
+        ['bi-bar-chart-fill','sky',
+            $voters->count() > 0 ? round($election->votes->count() / $voters->count() * 100) . '%' : '0%',
+            'Turnout'],
+    ] as [$icon, $color, $val, $label])
+    <div class="col-6 col-md-3">
+        <div class="rounded-3 p-3 d-flex align-items-center gap-3"
+             style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
+            <div style="width:40px;height:40px;background:rgba({{ $color === 'indigo' ? '99,102,241' : ($color === 'emerald' ? '34,197,94' : ($color === 'amber' ? '245,158,11' : '14,165,233')) }},0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi {{ $icon }}" style="color:{{ $color === 'indigo' ? '#a5b4fc' : ($color === 'emerald' ? '#4ade80' : ($color === 'amber' ? '#fcd34d' : '#67e8f9')) }};font-size:1rem;"></i>
             </div>
-            <div class="col-md-6">
-                <small style="color:rgba(255,255,255,0.4);">Status</small>
-                <p class="mb-0">
-                    @if($election->status === 'active')
-                        <span class="badge" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);">
-                            <i class="bi bi-circle-fill me-1" style="font-size:.5rem;"></i>Active
-                        </span>
-                    @elseif($election->status === 'upcoming')
-                        <span class="badge" style="background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);">
-                            <i class="bi bi-clock me-1"></i>Upcoming
-                        </span>
-                    @else
-                        <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);">
-                            <i class="bi bi-lock me-1"></i>Closed
-                        </span>
-                    @endif
-                </p>
+            <div>
+                <div style="font-size:1.5rem;font-weight:800;color:#fff;line-height:1;">{{ $val }}</div>
+                <div style="font-size:.72rem;color:rgba(255,255,255,0.4);margin-top:2px;">{{ $label }}</div>
             </div>
-            <div class="col-md-6">
-                <small style="color:rgba(255,255,255,0.4);">Start Date</small>
-                <p class="text-white mb-0">{{ $election->start_date->format('D, d M Y — H:i') }}</p>
+        </div>
+    </div>
+    @endforeach
+</div>
+
+{{-- Info + Positions --}}
+<div class="row g-4 mb-4">
+
+    {{-- Election info --}}
+    <div class="col-md-7">
+        <div class="rounded-4 overflow-hidden h-100" style="border:1px solid rgba(255,255,255,0.08);">
+            <div class="px-4 py-3 d-flex align-items-center gap-2" style="background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.07);">
+                <i class="bi bi-info-circle" style="color:#67e8f9;"></i>
+                <span style="font-weight:600;font-size:.88rem;color:#fff;">Election Details</span>
             </div>
-            <div class="col-md-6">
-                <small style="color:rgba(255,255,255,0.4);">End Date</small>
-                <p class="text-white mb-0">{{ $election->end_date->format('D, d M Y — H:i') }}</p>
+            <div class="p-4">
+                <div class="row g-3">
+                    @foreach([
+                        ['Description', $election->description ?? 'No description provided.'],
+                        ['Start Date', $election->start_date->format('D, d M Y — H:i')],
+                        ['End Date', $election->end_date->format('D, d M Y — H:i')],
+                    ] as [$label, $value])
+                    <div class="col-12">
+                        <div style="font-size:.7rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem;">{{ $label }}</div>
+                        <div style="color:#fff;font-size:.88rem;">{{ $value }}</div>
+                    </div>
+                    @endforeach
+                </div>
             </div>
-            <div class="col-12">
-                <small style="color:rgba(255,255,255,0.4);">Description</small>
-                <p class="text-white mb-0">{{ $election->description ?? 'No description provided.' }}</p>
+        </div>
+    </div>
+
+    {{-- Positions --}}
+    <div class="col-md-5">
+        <div class="rounded-4 overflow-hidden h-100" style="border:1px solid rgba(255,255,255,0.08);">
+            <div class="px-4 py-3 d-flex align-items-center justify-content-between" style="background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.07);">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-award" style="color:#fcd34d;"></i>
+                    <span style="font-weight:600;font-size:.88rem;color:#fff;">Positions</span>
+                </div>
+                <span style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);padding:.15rem .6rem;border-radius:50px;font-size:.72rem;">
+                    {{ $election->positions->count() }}
+                </span>
             </div>
-            <div class="col-md-4">
-                <small style="color:rgba(255,255,255,0.4);">Total Candidates</small>
-                <p class="fw-bold text-warning mb-0" style="font-size:1.4rem;">{{ $election->candidates->count() }}</p>
-            </div>
-            <div class="col-md-4">
-                <small style="color:rgba(255,255,255,0.4);">Total Votes Cast</small>
-                <p class="fw-bold text-warning mb-0" style="font-size:1.4rem;">{{ $election->votes->count() }}</p>
-            </div>
-            <div class="col-md-4">
-                <small style="color:rgba(255,255,255,0.4);">Registered Voters</small>
-                <p class="fw-bold text-warning mb-0" style="font-size:1.4rem;">{{ $voters->count() }}</p>
-            </div>
-            <div class="col-12">
-                <small style="color:rgba(255,255,255,0.4);">Positions / Posts Being Contested</small>
+            <div class="p-4">
                 @if($election->positions->count() > 0)
-                    <div class="d-flex flex-wrap gap-2 mt-1">
+                    <div class="d-flex flex-wrap gap-2">
                         @foreach($election->positions as $position)
-                            <span class="badge" style="background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);font-size:.85rem;padding:.45em .9em;">{{ $position->name }}</span>
+                            <span style="background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.25);padding:.35rem .85rem;border-radius:8px;font-size:.82rem;font-weight:500;">
+                                {{ $position->name }}
+                            </span>
                         @endforeach
                     </div>
                 @else
-                    <p class="text-white mb-0">No positions added.</p>
+                    <p style="color:rgba(255,255,255,0.25);font-size:.85rem;margin:0;">No positions added.</p>
                 @endif
             </div>
         </div>
     </div>
 </div>
 
-{{-- Uploaded Voters Table --}}
+{{-- Voters table --}}
 @if($fileRows->count() > 0)
-<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
-    <h6 class="fw-bold text-white mb-0"><i class="bi bi-people me-2 text-warning"></i>Uploaded Voters ({{ $fileRows->count() }})</h6>
-</div>
-<div class="card">
-    <div class="card-body p-0" style="background:transparent; overflow-x:auto;">
-        <table class="table mb-0 align-middle" style="--bs-table-bg:transparent;--bs-table-color:rgba(255,255,255,0.85);--bs-table-border-color:rgba(255,255,255,0.06);">
-            <thead>
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
-                    <th style="padding:1rem 1.2rem;">#</th>
+<div class="rounded-4 overflow-hidden" style="border:1px solid rgba(255,255,255,0.08);">
+    <div class="px-4 py-3 d-flex align-items-center justify-content-between" style="background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.07);">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-people" style="color:#fcd34d;"></i>
+            <span style="font-weight:600;font-size:.88rem;color:#fff;">Uploaded Voters</span>
+        </div>
+        <span style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);padding:.15rem .6rem;border-radius:50px;font-size:.72rem;">
+            {{ $fileRows->count() }} records
+        </span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="table mb-0 align-middle" style="--bs-table-bg:transparent;--bs-table-color:rgba(255,255,255,0.8);--bs-table-border-color:rgba(255,255,255,0.06);">
+            <thead style="background:rgba(255,255,255,0.03);">
+                <tr>
+                    <th style="padding:.8rem 1.2rem;color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;">#</th>
                     @foreach($fileHeaders as $header)
-                        <th style="text-transform:capitalize;">{{ str_replace('_', ' ', $header) }}</th>
+                        <th style="color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;">{{ str_replace('_', ' ', $header) }}</th>
                     @endforeach
                 </tr>
             </thead>
             <tbody>
                 @foreach($fileRows as $index => $row)
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td style="padding:1rem 1.2rem; color:rgba(255,255,255,0.4);">{{ $index + 1 }}</td>
+                <tr>
+                    <td style="padding:.85rem 1.2rem;color:rgba(255,255,255,0.3);font-size:.82rem;">{{ $index + 1 }}</td>
                     @foreach($fileHeaders as $header)
-                        <td style="color:rgba(255,255,255,0.75); font-size:.88rem;">
+                        <td style="font-size:.85rem;">
                             @if(strtolower($header) === 'password')
-                                <span style="color:rgba(255,255,255,0.3);">••••••••</span>
+                                <span style="color:rgba(255,255,255,0.2);">••••••••</span>
                             @else
                                 {{ $row[$header] ?? '—' }}
                             @endif
@@ -121,40 +158,43 @@
         </table>
     </div>
 </div>
+
 @elseif($voters->count() > 0)
-<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
-    <h6 class="fw-bold text-white mb-0"><i class="bi bi-people me-2 text-warning"></i>Registered Voters ({{ $voters->count() }})</h6>
-</div>
-<div class="card">
-    <div class="card-body p-0" style="background:transparent;">
-        <table class="table mb-0 align-middle" style="--bs-table-bg:transparent;--bs-table-color:rgba(255,255,255,0.85);--bs-table-border-color:rgba(255,255,255,0.06);">
-            <thead>
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
-                    <th style="padding:1rem 1.2rem;">#</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Voted</th>
+<div class="rounded-4 overflow-hidden" style="border:1px solid rgba(255,255,255,0.08);">
+    <div class="px-4 py-3 d-flex align-items-center justify-content-between" style="background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.07);">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-people" style="color:#fcd34d;"></i>
+            <span style="font-weight:600;font-size:.88rem;color:#fff;">Registered Voters</span>
+        </div>
+        <span style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);padding:.15rem .6rem;border-radius:50px;font-size:.72rem;">
+            {{ $voters->count() }} voters
+        </span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="table mb-0 align-middle" style="--bs-table-bg:transparent;--bs-table-color:rgba(255,255,255,0.8);--bs-table-border-color:rgba(255,255,255,0.06);">
+            <thead style="background:rgba(255,255,255,0.03);">
+                <tr>
+                    <th style="padding:.8rem 1.2rem;color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;">#</th>
+                    <th style="color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;">Name</th>
+                    <th style="color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;">Email</th>
+                    <th style="color:rgba(255,255,255,0.3);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;">Voted</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($voters as $voter)
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <td style="padding:1rem 1.2rem; color:rgba(255,255,255,0.4);">{{ $loop->iteration }}</td>
-                    <td class="fw-semibold">{{ $voter->name }}</td>
-                    <td style="color:rgba(255,255,255,0.6); font-size:.88rem;">{{ $voter->email }}</td>
-                    <td>
-                        @if($voter->is_active)
-                            <span class="badge" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);">Active</span>
-                        @else
-                            <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);">Inactive</span>
-                        @endif
-                    </td>
+                <tr>
+                    <td style="padding:.85rem 1.2rem;color:rgba(255,255,255,0.3);font-size:.82rem;">{{ $loop->iteration }}</td>
+                    <td style="font-weight:600;">{{ $voter->name }}</td>
+                    <td style="color:rgba(255,255,255,0.5);font-size:.85rem;">{{ $voter->email }}</td>
                     <td>
                         @if($voter->votes->where('election_id', $election->id)->count() > 0)
-                            <span class="badge" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);"><i class="bi bi-check-circle me-1"></i>Voted</span>
+                            <span style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);padding:.2rem .7rem;border-radius:50px;font-size:.72rem;font-weight:600;">
+                                <i class="bi bi-check-circle me-1"></i>Voted
+                            </span>
                         @else
-                            <span class="badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);">Not Voted</span>
+                            <span style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08);padding:.2rem .7rem;border-radius:50px;font-size:.72rem;font-weight:600;">
+                                Pending
+                            </span>
                         @endif
                     </td>
                 </tr>
@@ -163,6 +203,19 @@
         </table>
     </div>
 </div>
+
+@else
+<div class="text-center py-5 rounded-4" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);">
+    <i class="bi bi-people d-block mb-3" style="font-size:2.5rem;color:rgba(255,255,255,0.12);"></i>
+    <p style="color:rgba(255,255,255,0.25);margin:0;">
+        No voters uploaded yet.
+        <a href="{{ route('admin.voters.upload', ['election_id' => $election->id]) }}" style="color:#a5b4fc;">Upload voter list →</a>
+    </p>
+</div>
 @endif
+
+<style>
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+</style>
 
 @endsection

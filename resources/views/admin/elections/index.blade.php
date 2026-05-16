@@ -9,7 +9,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h5 class="fw-bold text-white mb-1">All Elections</h5>
-        <p style="color:rgba(255,255,255,0.35);font-size:.82rem;margin:0;">{{ \App\Models\Election::count() }} total elections in the system</p>
+        <p style="color:rgba(255,255,255,0.35);font-size:.82rem;margin:0;">{{ $elections->count() }} total elections in the system</p>
     </div>
     <a href="{{ route('admin.elections.create') }}"
        style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:10px;padding:.6rem 1.2rem;font-size:.88rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;transition:opacity .2s;"

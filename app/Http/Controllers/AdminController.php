@@ -13,10 +13,11 @@ class AdminController extends Controller
     public function dashboard()
     {
         $data = [
-            'elections'  => Election::count(),
-            'candidates' => Candidate::count(),
-            'voters'     => User::where('role', 'voter')->count(),
-            'votes'      => Vote::count(),
+            'elections'        => Election::count(),
+            'candidates'       => Candidate::count(),
+            'voters'           => User::where('role', 'voter')->count(),
+            'votes'            => Vote::count(),
+            'recentElections'  => Election::withCount('candidates')->latest()->take(5)->get(),
         ];
 
         return view('admin.dashboard', $data);

@@ -1,84 +1,141 @@
 <x-guest-layout>
-    <div class="text-center mb-4">
-        <div class="mx-auto mb-3" style="width:52px;height:52px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:14px;display:flex;align-items:center;justify-content:center;">
-            <i class="bi bi-person-plus-fill text-white fs-4"></i>
+
+    <!-- Header -->
+    <div class="mb-5">
+        <div style="width:52px;height:52px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;box-shadow:0 8px 24px rgba(245,158,11,0.3);">
+            <i class="bi bi-person-plus-fill text-white" style="font-size:1.4rem;"></i>
         </div>
-        <h4 class="fw-bold text-white mb-1">Create Account</h4>
-        <p style="color:rgba(255,255,255,0.45);font-size:.88rem;">Register to participate in elections</p>
+        <h3 class="fw-bold text-white mb-1" style="letter-spacing:-.02em;">Create your account</h3>
+        <p style="color:rgba(255,255,255,0.4);font-size:.9rem;margin:0;">Register to participate in elections.</p>
     </div>
 
     @if($errors->any())
-        <div class="alert alert-danger mb-3">
-            <ul class="mb-0 ps-3">
+        <div class="alert alert-danger d-flex align-items-start gap-2 mb-4">
+            <i class="bi bi-exclamation-triangle-fill mt-1 flex-shrink-0"></i>
+            <div>
                 @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <div>{{ $error }}</div>
                 @endforeach
-            </ul>
+            </div>
         </div>
     @endif
 
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Full Name</label>
-            <div class="input-group">
-                <span class="input-group-text" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-right:none;color:rgba(255,255,255,0.4);">
-                    <i class="bi bi-person"></i>
-                </span>
-                <input id="name" type="text" name="name" class="form-control"
-                       style="border-left:none;"
-                       placeholder="John Doe"
+        <!-- Full Name -->
+        <div class="mb-4">
+            <label class="form-label">Full Name</label>
+            <div class="auth-input-wrap">
+                <input type="text" name="name" class="auth-input"
+                       placeholder="Juan dela Cruz"
                        value="{{ old('name') }}" required autofocus>
+                <span class="auth-input-icon"><i class="bi bi-person"></i></span>
             </div>
         </div>
 
-        <div class="mb-3">
-            <label for="email" class="form-label">Email Address</label>
-            <div class="input-group">
-                <span class="input-group-text" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-right:none;color:rgba(255,255,255,0.4);">
-                    <i class="bi bi-envelope"></i>
-                </span>
-                <input id="email" type="email" name="email" class="form-control"
-                       style="border-left:none;"
+        <!-- Email -->
+        <div class="mb-4">
+            <label class="form-label">Email Address</label>
+            <div class="auth-input-wrap">
+                <input type="email" name="email" class="auth-input"
                        placeholder="you@example.com"
                        value="{{ old('email') }}" required>
+                <span class="auth-input-icon"><i class="bi bi-envelope"></i></span>
             </div>
         </div>
 
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <div class="input-group">
-                <span class="input-group-text" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-right:none;color:rgba(255,255,255,0.4);">
-                    <i class="bi bi-lock"></i>
-                </span>
-                <input id="password" type="password" name="password" class="form-control"
-                       style="border-left:none;"
-                       placeholder="Min. 8 characters" required>
+        <!-- Password -->
+        <div class="mb-2">
+            <label class="form-label">Password</label>
+            <div class="auth-input-wrap">
+                <input id="reg-password" type="password" name="password" class="auth-input"
+                       placeholder="Min. 8 characters" required
+                       oninput="checkStrength(this.value)">
+                <span class="auth-input-icon"><i class="bi bi-lock"></i></span>
+                <button type="button" onclick="togglePw('reg-password','toggle-reg-icon')"
+                        style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;padding:0;font-size:.95rem;">
+                    <i id="toggle-reg-icon" class="bi bi-eye"></i>
+                </button>
             </div>
         </div>
 
+        <!-- Password strength meter -->
         <div class="mb-4">
-            <label for="password_confirmation" class="form-label">Confirm Password</label>
-            <div class="input-group">
-                <span class="input-group-text" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-right:none;color:rgba(255,255,255,0.4);">
-                    <i class="bi bi-lock-fill"></i>
-                </span>
-                <input id="password_confirmation" type="password" name="password_confirmation"
-                       class="form-control" style="border-left:none;"
-                       placeholder="Repeat password" required>
+            <div style="display:flex;gap:4px;margin-bottom:.3rem;">
+                <div id="bar1" style="flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,0.08);transition:background .3s;"></div>
+                <div id="bar2" style="flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,0.08);transition:background .3s;"></div>
+                <div id="bar3" style="flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,0.08);transition:background .3s;"></div>
+                <div id="bar4" style="flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,0.08);transition:background .3s;"></div>
+            </div>
+            <p id="strength-label" style="color:rgba(255,255,255,0.25);font-size:.75rem;margin:0;"></p>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-5">
+            <label class="form-label">Confirm Password</label>
+            <div class="auth-input-wrap">
+                <input id="reg-confirm" type="password" name="password_confirmation" class="auth-input"
+                       placeholder="Repeat your password" required
+                       oninput="checkMatch()">
+                <span class="auth-input-icon"><i class="bi bi-lock-fill"></i></span>
+                <span id="match-icon" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:.95rem;display:none;"></span>
             </div>
         </div>
 
-        <button type="submit" class="btn-auth">
-            <i class="bi bi-person-check me-2"></i>Create Account
+        <button type="submit" class="btn-auth" style="background:linear-gradient(135deg,#f59e0b,#ef4444);box-shadow:0 4px 20px rgba(245,158,11,0.3);">
+            <i class="bi bi-person-check"></i> Create Account
         </button>
     </form>
 
-    <hr class="divider my-4">
+    <div style="height:1px;background:rgba(255,255,255,0.08);margin:1.5rem 0;"></div>
 
-    <p class="text-center mb-0" style="color:rgba(255,255,255,0.45);font-size:.88rem;">
+    <p class="text-center mb-0" style="color:rgba(255,255,255,0.4);font-size:.88rem;">
         Already have an account?
         <a href="{{ route('login') }}" class="auth-link fw-semibold ms-1">Sign in</a>
     </p>
+
+    <script>
+    function togglePw(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        input.type  = input.type === 'password' ? 'text' : 'password';
+        icon.className = input.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+    }
+
+    function checkStrength(val) {
+        let score = 0;
+        if (val.length >= 8)              score++;
+        if (/[A-Z]/.test(val))            score++;
+        if (/[0-9]/.test(val))            score++;
+        if (/[^A-Za-z0-9]/.test(val))     score++;
+
+        const colors = ['', '#ef4444', '#f59e0b', '#06b6d4', '#22c55e'];
+        const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+        const bars   = ['bar1','bar2','bar3','bar4'];
+
+        bars.forEach((id, i) => {
+            document.getElementById(id).style.background =
+                i < score ? colors[score] : 'rgba(255,255,255,0.08)';
+        });
+
+        const lbl = document.getElementById('strength-label');
+        lbl.textContent = val.length ? 'Password strength: ' + labels[score] : '';
+        lbl.style.color = val.length ? colors[score] : 'rgba(255,255,255,0.25)';
+    }
+
+    function checkMatch() {
+        const pw   = document.getElementById('reg-password').value;
+        const conf = document.getElementById('reg-confirm').value;
+        const icon = document.getElementById('match-icon');
+        if (!conf) { icon.style.display = 'none'; return; }
+        icon.style.display = 'inline';
+        if (pw === conf) {
+            icon.innerHTML = '<i class="bi bi-check-circle-fill" style="color:#22c55e;"></i>';
+        } else {
+            icon.innerHTML = '<i class="bi bi-x-circle-fill" style="color:#ef4444;"></i>';
+        }
+    }
+    </script>
+
 </x-guest-layout>
