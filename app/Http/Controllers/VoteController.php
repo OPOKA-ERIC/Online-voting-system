@@ -10,12 +10,29 @@ class VoteController extends Controller
 {
     public function index()
     {
-
-        $elections = Election::where('start_date', '<=', now())
+        $elections = Election::with(['positions', 'candidates'])
+            ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
             ->get();
 
-        return view('voter.dashboard', compact('elections'));
+        $userId = auth()->id();
+
+        // Per-election: how many positions the voter has voted in
+        $voteProgress = [];
+        foreach ($elections as $election) {
+            $totalPositions = $election->positions->count();
+            $votedPositions = Vote::where('user_id', $userId)
+                ->where('election_id', $election->id)
+                ->distinct('position_id')
+                ->count('position_id');
+            $voteProgress[$election->id] = [
+                'voted'  => $votedPositions,
+                'total'  => $totalPositions,
+                'done'   => $totalPositions > 0 && $votedPositions >= $totalPositions,
+            ];
+        }
+
+        return view('voter.dashboard', compact('elections', 'voteProgress'));
     }
 
     public function show($id)
@@ -61,15 +78,44 @@ class VoteController extends Controller
             return back()->with('error', 'You have already voted for this position. Each voter can only vote once per position.');
         }
 
-        Vote::create([
+        $vote = Vote::create([
             'user_id'      => auth()->id(),
             'election_id'  => $election->id,
             'candidate_id' => $request->candidate_id,
             'position_id'  => $request->position_id,
         ]);
 
+        // Check if all positions are now voted
+        $totalPositions = $election->positions()->count();
+        $votedPositions = Vote::where('user_id', auth()->id())
+            ->where('election_id', $election->id)
+            ->distinct('position_id')
+            ->count('position_id');
+
+        if ($votedPositions >= $totalPositions) {
+            // Build full receipt from DB
+            $allVotes = Vote::with(['candidate', 'position'])
+                ->where('user_id', auth()->id())
+                ->where('election_id', $election->id)
+                ->get()
+                ->map(fn($v) => [
+                    'position'  => $v->position->name,
+                    'candidate' => $v->candidate->name,
+                    'voted_at'  => $v->created_at->format('M d, Y h:i A'),
+                ])->toArray();
+
+            session([
+                'election_id'    => $election->id,
+                'election_title' => $election->title,
+                'all_votes'      => $allVotes,
+                'voted_at'       => now()->format('M d, Y h:i A'),
+            ]);
+
+            return redirect()->route('voter.confirmation');
+        }
+
         return redirect()->route('voter.vote', $election->id)
-            ->with('success', 'Your vote has been cast successfully!');
+            ->with('success', 'Vote cast! Continue voting for the remaining positions.');
     }
 
     public function confirmation()

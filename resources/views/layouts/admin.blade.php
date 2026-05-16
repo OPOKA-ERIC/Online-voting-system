@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @stack('styles')
 
     <style>
         * { font-family: 'Inter', sans-serif; }
@@ -16,46 +17,172 @@
 
         /* ── Sidebar ── */
         #sidebar {
-            min-height: 100vh; width: 260px;
-            background: linear-gradient(180deg, #080e1a 0%, #0f172a 100%);
+            width: 272px;
+            min-height: 100vh;
             position: fixed; top: 0; left: 0; z-index: 200;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.4);
             display: flex; flex-direction: column;
+            background: #070b14;
             border-right: 1px solid rgba(255,255,255,0.06);
-        }
-        .sidebar-brand { padding: 1.5rem 1.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
-        .sidebar-brand .brand-logo {
-            width: 42px; height: 42px;
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; color: #fff; margin-bottom: .6rem;
-        }
-        .sidebar-brand .brand-title { font-size: 1rem; font-weight: 700; color: #fff; line-height: 1.2; }
-        .sidebar-brand .brand-sub { font-size: .72rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: .08em; }
-        .sidebar-section-label {
-            font-size: .68rem; font-weight: 600; color: rgba(255,255,255,0.25);
-            text-transform: uppercase; letter-spacing: .1em; padding: 1.2rem 1.5rem .4rem;
-        }
-        #sidebar .nav-link {
-            color: rgba(255,255,255,0.55); padding: .7rem 1.5rem;
-            font-size: .88rem; font-weight: 500; border-radius: 0;
-            display: flex; align-items: center; gap: .65rem;
-            transition: all .2s; border-left: 3px solid transparent;
-        }
-        #sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.06); border-left-color: rgba(255,255,255,0.2); }
-        #sidebar .nav-link.active { color: #fff; background: rgba(245,158,11,0.12); border-left-color: #f59e0b; }
-        #sidebar .nav-link i { font-size: 1rem; width: 18px; text-align: center; }
-        .sidebar-footer { margin-top: auto; padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.07); }
-        .admin-avatar {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: #fff; font-weight: 700; font-size: .85rem;
+            box-shadow: 4px 0 40px rgba(0,0,0,0.5);
         }
 
+        /* Brand */
+        .sb-brand {
+            padding: 1.5rem 1.4rem 1.3rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: center; gap: .85rem;
+        }
+        .sb-brand-icon {
+            width: 44px; height: 44px; flex-shrink: 0;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; color: #fff;
+            box-shadow: 0 4px 16px rgba(245,158,11,0.35);
+        }
+        .sb-brand-text .sb-brand-name {
+            font-size: .95rem; font-weight: 700; color: #fff; line-height: 1.2;
+            letter-spacing: -.01em;
+        }
+        .sb-brand-text .sb-brand-role {
+            font-size: .68rem; color: rgba(255,255,255,0.3);
+            text-transform: uppercase; letter-spacing: .1em; margin-top: 1px;
+        }
+
+        /* Nav sections */
+        .sb-section {
+            padding: 1.4rem 1rem 0;
+        }
+        .sb-section-label {
+            font-size: .65rem; font-weight: 700; color: rgba(255,255,255,0.2);
+            text-transform: uppercase; letter-spacing: .14em;
+            padding: 0 .5rem .6rem;
+        }
+
+        /* Nav items */
+        .sb-nav-item { list-style: none; margin-bottom: 2px; }
+        .sb-nav-link {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .65rem .85rem;
+            border-radius: 12px;
+            color: rgba(255,255,255,0.45);
+            font-size: .875rem; font-weight: 500;
+            text-decoration: none;
+            transition: all .2s cubic-bezier(.4,0,.2,1);
+            position: relative;
+            border: 1px solid transparent;
+        }
+        .sb-nav-link:hover {
+            color: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.07);
+        }
+        .sb-nav-link.active {
+            color: #fff;
+            background: rgba(99,102,241,0.15);
+            border-color: rgba(99,102,241,0.3);
+            box-shadow: 0 2px 12px rgba(99,102,241,0.15);
+        }
+        .sb-nav-link.active .sb-icon-wrap {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+            color: #fff;
+        }
+        .sb-nav-link .sb-active-dot {
+            display: none;
+            width: 6px; height: 6px;
+            background: #6366f1;
+            border-radius: 50%;
+            margin-left: auto;
+            box-shadow: 0 0 8px rgba(99,102,241,0.8);
+        }
+        .sb-nav-link.active .sb-active-dot { display: block; }
+
+        /* Icon wrap */
+        .sb-icon-wrap {
+            width: 34px; height: 34px; flex-shrink: 0;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.06);
+            font-size: .95rem;
+            transition: all .2s;
+        }
+        .sb-nav-link:hover .sb-icon-wrap {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Divider */
+        .sb-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.05);
+            margin: 1rem 1.4rem;
+        }
+
+        /* Footer */
+        .sb-footer {
+            margin-top: auto;
+            padding: 1rem 1.4rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .sb-user {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .65rem .75rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            margin-bottom: .75rem;
+            transition: background .2s;
+        }
+        .sb-user:hover { background: rgba(255,255,255,0.07); }
+        .sb-avatar {
+            width: 36px; height: 36px; flex-shrink: 0;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: .85rem;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+        }
+        .sb-user-name { font-size: .82rem; font-weight: 600; color: #fff; line-height: 1.2; }
+        .sb-user-role { font-size: .7rem; color: rgba(255,255,255,0.3); margin-top: 1px; }
+        .sb-logout {
+            display: flex; align-items: center; justify-content: center; gap: .5rem;
+            width: 100%; padding: .55rem;
+            border-radius: 10px;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.18);
+            color: rgba(239,68,68,0.7);
+            font-size: .82rem; font-weight: 500;
+            cursor: pointer; transition: all .2s;
+        }
+        .sb-logout:hover {
+            background: rgba(239,68,68,0.15);
+            border-color: rgba(239,68,68,0.35);
+            color: #fca5a5;
+        }
+
+        /* Status pill */
+        .sb-status {
+            display: flex; align-items: center; gap: .5rem;
+            padding: .45rem .75rem;
+            border-radius: 8px;
+            background: rgba(16,185,129,0.08);
+            border: 1px solid rgba(16,185,129,0.18);
+            margin-bottom: .75rem;
+        }
+        .sb-status-dot {
+            width: 7px; height: 7px;
+            background: #10b981; border-radius: 50%;
+            animation: pulse-green 2s infinite;
+            flex-shrink: 0;
+        }
+        @keyframes pulse-green {
+            0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+            50%      { box-shadow: 0 0 0 4px rgba(16,185,129,0); }
+        }
+        .sb-status-text { font-size: .7rem; color: rgba(16,185,129,0.8); font-weight: 500; }
+
         /* ── Main Content ── */
-        #main-content { margin-left: 260px; min-height: 100vh; }
+        #main-content { margin-left: 272px; min-height: 100vh; }
 
         /* ── Top Navbar ── */
         #topnav {
@@ -170,43 +297,96 @@
 
 <!-- ══════════════ SIDEBAR ══════════════ -->
 <nav id="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-logo"><i class="bi bi-shield-check"></i></div>
-        <div class="brand-title">Online Voting</div>
-        <div class="brand-sub">Admin Panel</div>
-    </div>
 
-    <div class="sidebar-section-label">Main Menu</div>
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a href="{{ route('admin.dashboard') }}"
-               class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('admin.elections.index') }}"
-               class="nav-link {{ request()->routeIs('admin.elections.*') ? 'active' : '' }}">
-                <i class="bi bi-calendar2-check"></i> Elections
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('admin.candidates.index') }}"
-               class="nav-link {{ request()->routeIs('admin.candidates.*') ? 'active' : '' }}">
-                <i class="bi bi-people-fill"></i> Candidates
-            </a>
-        </li>
-    </ul>
-
-    <div class="sidebar-footer">
-        <div class="d-flex align-items-center gap-2">
-            <div class="admin-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
-            <div>
-                <div style="font-size:.82rem; font-weight:600; color:#fff;">{{ auth()->user()->name }}</div>
-                <div style="font-size:.72rem; color:rgba(255,255,255,0.35);">Administrator</div>
-            </div>
+    <!-- Brand -->
+    <div class="sb-brand">
+        <div class="sb-brand-icon"><i class="bi bi-shield-check"></i></div>
+        <div class="sb-brand-text">
+            <div class="sb-brand-name">VoteSecure</div>
+            <div class="sb-brand-role">Admin Panel</div>
         </div>
     </div>
+
+    <!-- Main Navigation -->
+    <div class="sb-section">
+        <div class="sb-section-label">Main</div>
+        <ul class="p-0 m-0">
+            <li class="sb-nav-item">
+                <a href="{{ route('admin.dashboard') }}"
+                   class="sb-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <span class="sb-icon-wrap"><i class="bi bi-speedometer2"></i></span>
+                    <span>Dashboard</span>
+                    <span class="sb-active-dot"></span>
+                </a>
+            </li>
+            <li class="sb-nav-item">
+                <a href="{{ route('admin.elections.index') }}"
+                   class="sb-nav-link {{ request()->routeIs('admin.elections.*') ? 'active' : '' }}">
+                    <span class="sb-icon-wrap"><i class="bi bi-calendar2-check"></i></span>
+                    <span>Elections</span>
+                    <span class="sb-active-dot"></span>
+                </a>
+            </li>
+            <li class="sb-nav-item">
+                <a href="{{ route('admin.candidates.index') }}"
+                   class="sb-nav-link {{ request()->routeIs('admin.candidates.*') ? 'active' : '' }}">
+                    <span class="sb-icon-wrap"><i class="bi bi-people-fill"></i></span>
+                    <span>Candidates</span>
+                    <span class="sb-active-dot"></span>
+                </a>
+            </li>
+            <li class="sb-nav-item">
+                <a href="{{ route('admin.voters.upload') }}"
+                   class="sb-nav-link {{ request()->routeIs('admin.voters.*') ? 'active' : '' }}">
+                    <span class="sb-icon-wrap"><i class="bi bi-person-lines-fill"></i></span>
+                    <span>Voters</span>
+                    <span class="sb-active-dot"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <!-- Settings / External -->
+    <div style="padding: 0 1rem">
+        <ul class="p-0 m-0">
+            <li class="sb-nav-item">
+                <a href="{{ route('home') }}" class="sb-nav-link" target="_blank">
+                    <span class="sb-icon-wrap"><i class="bi bi-box-arrow-up-right"></i></span>
+                    <span>View Site</span>
+                </a>
+            </li>
+            <li class="sb-nav-item">
+                <a href="{{ route('profile.edit') }}" class="sb-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                    <span class="sb-icon-wrap"><i class="bi bi-gear"></i></span>
+                    <span>Settings</span>
+                    <span class="sb-active-dot"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Footer -->
+    <div class="sb-footer">        <!-- User info -->
+        <div class="sb-user">
+            <div class="sb-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+            <div class="flex-1 min-width-0" style="overflow:hidden">
+                <div class="sb-user-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ auth()->user()->name }}</div>
+                <div class="sb-user-role">Administrator</div>
+            </div>
+        </div>
+
+        <!-- Logout -->
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="sb-logout">
+                <i class="bi bi-box-arrow-right"></i>
+                Sign Out
+            </button>
+        </form>
+    </div>
+
 </nav>
 
 <!-- ══════════════ MAIN CONTENT ══════════════ -->
@@ -225,12 +405,6 @@
                     <div style="font-size:.75rem; color:rgba(255,255,255,0.35);">Administrator</div>
                 </div>
             </div>
-            <form method="POST" action="{{ route('logout') }}" class="mb-0">
-                @csrf
-                <button type="submit" class="btn btn-sm btn-outline-light">
-                    <i class="bi bi-box-arrow-right me-1"></i> Logout
-                </button>
-            </form>
         </div>
     </div>
 

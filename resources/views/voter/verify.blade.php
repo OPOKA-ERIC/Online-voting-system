@@ -57,16 +57,18 @@
                             <span style="color:#ef4444;">*</span>
                         </label>
                         <div style="position:relative;">
-                            <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);">
+                            <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);pointer-events:none;">
                                 <i class="bi bi-person-badge"></i>
                             </span>
-                            <input type="text" name="unique_value"
-                                   style="width:100%;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);color:#fff;border-radius:10px;padding:.7rem 1rem .7rem 2.8rem;font-size:.9rem;outline:none;transition:border-color .2s;"
+                            <input id="unique_value_input" type="text" name="unique_value"
+                                   style="width:100%;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);color:#fff;border-radius:10px;padding:.7rem 2.8rem .7rem 2.8rem;font-size:.9rem;outline:none;transition:border-color .2s;"
                                    placeholder="Enter your {{ strtolower(str_replace('_', ' ', $uniqueColumn)) }}"
-                                   value="{{ old('unique_value') }}" required autofocus
-                                   onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+                                   value="{{ old('unique_value') }}" required autofocus>
+                            <span id="input-check" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);color:#22c55e;font-size:1rem;display:none;pointer-events:none;">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </span>
                         </div>
-                        <p style="color:rgba(255,255,255,0.3);font-size:.78rem;margin-top:.4rem;">Your unique identifier assigned for this election.</p>
+                        <p id="input-hint" style="color:rgba(255,255,255,0.3);font-size:.78rem;margin-top:.4rem;">Your unique identifier assigned for this election.</p>
                     </div>
 
                     <!-- Logged in as -->
@@ -112,4 +114,33 @@
         </div>
     </div>
 </div>
+<script>
+const input = document.getElementById('unique_value_input');
+const check = document.getElementById('input-check');
+const hint  = document.getElementById('input-hint');
+
+if (input) {
+    // Restore state if old value present
+    if (input.value.trim().length >= 3) {
+        check.style.display = 'inline';
+        input.style.borderColor = '#22c55e';
+    }
+
+    input.addEventListener('input', function() {
+        const valid = this.value.trim().length >= 3;
+        check.style.display     = valid ? 'inline' : 'none';
+        this.style.borderColor  = valid ? '#22c55e' : 'rgba(255,255,255,0.12)';
+        hint.style.color        = valid ? '#4ade80' : 'rgba(255,255,255,0.3)';
+        hint.textContent        = valid ? 'Looks good! Click verify to proceed.' : 'Your unique identifier assigned for this election.';
+    });
+
+    input.addEventListener('focus', function() {
+        if (this.value.trim().length < 3) this.style.borderColor = '#6366f1';
+    });
+
+    input.addEventListener('blur', function() {
+        if (this.value.trim().length < 3) this.style.borderColor = 'rgba(255,255,255,0.12)';
+    });
+}
+</script>
 @endsection

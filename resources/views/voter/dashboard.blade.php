@@ -53,17 +53,39 @@
                     <!-- Top accent bar -->
                     <div style="height:4px;background:linear-gradient(90deg,#6366f1,#06b6d4,#22c55e);"></div>
                     <div class="p-4">
+                        @php $progress = $voteProgress[$election->id] ?? ['voted'=>0,'total'=>0,'done'=>false]; @endphp
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div style="width:44px;height:44px;background:rgba(99,102,241,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
                                 <i class="bi bi-calendar2-check" style="color:#a5b4fc;font-size:1.1rem;"></i>
                             </div>
-                            <span style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;">
-                                <i class="bi bi-circle-fill me-1" style="font-size:.4rem;vertical-align:middle;"></i>LIVE
-                            </span>
+                            <div class="d-flex gap-2 align-items-center">
+                                @if($progress['done'])
+                                    <span style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Voted
+                                    </span>
+                                @else
+                                    <span style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;">
+                                        <i class="bi bi-circle-fill me-1" style="font-size:.4rem;vertical-align:middle;"></i>LIVE
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <h5 class="fw-bold text-white mb-2">{{ $election->title }}</h5>
                         <p style="color:rgba(255,255,255,0.45);font-size:.85rem;line-height:1.5;margin-bottom:1.2rem;">{{ $election->description ?? 'Participate in this election and make your voice heard.' }}</p>
+
+                        <!-- Voting progress -->
+                        @if($progress['total'] > 0)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <small style="color:rgba(255,255,255,0.4);font-size:.78rem;">Voting Progress</small>
+                                    <small style="color:rgba(255,255,255,0.6);font-size:.78rem;font-weight:600;">{{ $progress['voted'] }}/{{ $progress['total'] }} positions</small>
+                                </div>
+                                <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                                    <div style="height:100%;width:{{ $progress['total'] > 0 ? round(($progress['voted']/$progress['total'])*100) : 0 }}%;background:{{ $progress['done'] ? 'linear-gradient(90deg,#22c55e,#16a34a)' : 'linear-gradient(90deg,#6366f1,#06b6d4)' }};border-radius:99px;transition:width .4s;"></div>
+                                </div>
+                            </div>
+                        @endif
 
                         <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:.75rem 1rem;margin-bottom:1.2rem;">
                             <div class="d-flex justify-content-between mb-2">
@@ -89,7 +111,7 @@
                             <a href="{{ route('voter.results', $election->id) }}"
                                style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:all .2s;"
                                onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
-                                <i class="bi bi-bar-chart"></i>
+                                <i class="bi bi-bar-chart"></i> Results
                             </a>
                         </div>
                     </div>

@@ -7,15 +7,26 @@
 @section('content')
 
 {{-- Hero Welcome --}}
-<div class="mb-5 p-5 rounded-4 position-relative overflow-hidden" style="background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%);">
-    <div style="position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(99,102,241,0.15),transparent 70%);border-radius:50%;"></div>
-    <div style="position:absolute;bottom:-60px;left:20%;width:200px;height:200px;background:radial-gradient(circle,rgba(6,182,212,0.1),transparent 70%);border-radius:50%;"></div>
-    <div class="position-relative">
-        <p style="color:rgba(255,255,255,0.4);font-size:.78rem;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.5rem;">
-            <i class="bi bi-shield-check me-2" style="color:#6366f1;"></i>Online Voting System
-        </p>
-        <h2 class="fw-bold text-white mb-2">Welcome back, {{ auth()->user()->name }} 👋</h2>
-        <p style="color:rgba(255,255,255,0.5);font-size:.95rem;margin:0;">Here's what's happening with your elections today.</p>
+<div class="mb-5 p-5 rounded-4 position-relative overflow-hidden"
+     style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
+    <div style="position:absolute;top:-80px;right:-80px;width:320px;height:320px;background:radial-gradient(circle,rgba(99,102,241,0.12),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-60px;left:20%;width:220px;height:220px;background:radial-gradient(circle,rgba(6,182,212,0.07),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+    <div class="position-relative d-flex align-items-center justify-content-between flex-wrap gap-4">
+        <div>
+            <p style="color:rgba(255,255,255,0.35);font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.5rem;">
+                <i class="bi bi-shield-check me-2" style="color:#6366f1;"></i>VoteSecure Admin
+            </p>
+            <h2 class="fw-bold text-white mb-2" style="font-size:1.6rem;">Welcome back, {{ auth()->user()->name }} 👋</h2>
+            <p style="color:rgba(255,255,255,0.4);font-size:.9rem;margin:0;">Here's what's happening with your elections today.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('admin.elections.create') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle me-1"></i>New Election
+            </a>
+            <a href="{{ route('admin.candidates.create') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-person-plus me-1"></i>Add Candidate
+            </a>
+        </div>
     </div>
 </div>
 
@@ -98,56 +109,38 @@
 
 {{-- Quick Actions --}}
 <div class="mb-4">
-    <h6 style="color:rgba(255,255,255,0.4);font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1.2rem;">
+    <h6 style="color:rgba(255,255,255,0.4);font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1rem;">
         <i class="bi bi-lightning-charge-fill me-2" style="color:#f59e0b;"></i>Quick Actions
     </h6>
     <div class="row g-3">
+        @foreach([
+            [route('admin.elections.create'),  'bi-plus-circle-fill',  '99,102,241', '#a5b4fc', 'New Election',   'Create election'],
+            [route('admin.candidates.create'), 'bi-person-plus-fill',  '34,197,94',  '#4ade80', 'Add Candidate',  'Register candidate'],
+            [route('admin.voters.upload'),     'bi-upload',            '245,158,11', '#fcd34d', 'Upload Voters',  'Import voter list'],
+            [route('admin.elections.index'),   'bi-bar-chart-fill',    '6,182,212',  '#67e8f9', 'View Elections', 'Manage all elections'],
+        ] as [$href, $icon, $rgb, $iconColor, $title, $sub])
         <div class="col-md-3 col-sm-6">
-            <a href="{{ route('admin.elections.create') }}" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);transition:all .2s;" onmouseover="this.style.background='rgba(99,102,241,0.15)'" onmouseout="this.style.background='rgba(99,102,241,0.08)'">
-                <div style="width:40px;height:40px;background:rgba(99,102,241,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="bi bi-plus-circle-fill" style="color:#a5b4fc;"></i>
+            <a href="{{ $href }}" class="qa-card d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none"
+               style="background:rgba({{ $rgb }},0.08);border:1px solid rgba({{ $rgb }},0.2);--qa-hover:rgba({{ $rgb }},0.16);">
+                <div style="width:40px;height:40px;background:rgba({{ $rgb }},0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi {{ $icon }}" style="color:{{ $iconColor }};"></i>
                 </div>
                 <div>
-                    <div style="color:#fff;font-weight:600;font-size:.88rem;">New Election</div>
-                    <div style="color:rgba(255,255,255,0.35);font-size:.75rem;">Create election</div>
+                    <div style="color:#fff;font-weight:600;font-size:.88rem;">{{ $title }}</div>
+                    <div style="color:rgba(255,255,255,0.35);font-size:.75rem;">{{ $sub }}</div>
                 </div>
             </a>
         </div>
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ route('admin.candidates.create') }}" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none" style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);transition:all .2s;" onmouseover="this.style.background='rgba(34,197,94,0.15)'" onmouseout="this.style.background='rgba(34,197,94,0.08)'">
-                <div style="width:40px;height:40px;background:rgba(34,197,94,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="bi bi-person-plus-fill" style="color:#4ade80;"></i>
-                </div>
-                <div>
-                    <div style="color:#fff;font-weight:600;font-size:.88rem;">Add Candidate</div>
-                    <div style="color:rgba(255,255,255,0.35);font-size:.75rem;">Register candidate</div>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ route('admin.voters.upload') }}" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);transition:all .2s;" onmouseover="this.style.background='rgba(245,158,11,0.15)'" onmouseout="this.style.background='rgba(245,158,11,0.08)'">
-                <div style="width:40px;height:40px;background:rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="bi bi-upload" style="color:#fcd34d;"></i>
-                </div>
-                <div>
-                    <div style="color:#fff;font-weight:600;font-size:.88rem;">Upload Voters</div>
-                    <div style="color:rgba(255,255,255,0.35);font-size:.75rem;">Import voter list</div>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ route('admin.elections.index') }}" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none" style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);transition:all .2s;" onmouseover="this.style.background='rgba(6,182,212,0.15)'" onmouseout="this.style.background='rgba(6,182,212,0.08)'">
-                <div style="width:40px;height:40px;background:rgba(6,182,212,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="bi bi-bar-chart-fill" style="color:#67e8f9;"></i>
-                </div>
-                <div>
-                    <div style="color:#fff;font-weight:600;font-size:.88rem;">View Elections</div>
-                    <div style="color:rgba(255,255,255,0.35);font-size:.75rem;">Manage all elections</div>
-                </div>
-            </a>
-        </div>
+        @endforeach
     </div>
 </div>
+
+@push('styles')
+<style>
+.qa-card { transition: background .2s, transform .2s; }
+.qa-card:hover { background: var(--qa-hover) !important; transform: translateY(-2px); }
+</style>
+@endpush
 
 {{-- Recent Elections Table --}}
 <div>
@@ -168,11 +161,11 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse(\App\Models\Election::latest()->take(5)->get() as $election)
+                @forelse($recentElections as $election)
                 <tr>
                     <td style="padding:1rem 1.2rem;">
                         <div style="font-weight:600;color:#fff;">{{ $election->title }}</div>
-                        <div style="color:rgba(255,255,255,0.35);font-size:.78rem;">{{ $election->candidates->count() }} candidate(s)</div>
+                        <div style="color:rgba(255,255,255,0.35);font-size:.78rem;">{{ $election->candidates_count }} candidate(s)</div>
                     </td>
                     <td>
                         @if($election->status === 'active')
