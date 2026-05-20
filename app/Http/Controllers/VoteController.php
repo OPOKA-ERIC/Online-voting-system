@@ -10,14 +10,19 @@ class VoteController extends Controller
 {
     public function index()
     {
-        $elections = Election::with(['positions', 'candidates'])
+        $activeElections = Election::with(['positions', 'candidates'])
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
             ->get();
 
+        $endedElections = Election::with(['positions', 'candidates'])
+            ->where('end_date', '<', now())
+            ->get();
+
+        $elections = $activeElections->merge($endedElections);
+
         $userId = auth()->id();
 
-        // Per-election: how many positions the voter has voted in
         $voteProgress = [];
         foreach ($elections as $election) {
             $totalPositions = $election->positions->count();
@@ -32,7 +37,7 @@ class VoteController extends Controller
             ];
         }
 
-        return view('voter.dashboard', compact('elections', 'voteProgress'));
+        return view('voter.dashboard', compact('activeElections', 'endedElections', 'elections', 'voteProgress'));
     }
 
     public function show($id)

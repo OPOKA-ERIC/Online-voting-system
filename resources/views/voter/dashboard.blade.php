@@ -42,12 +42,12 @@
             <p style="color:rgba(255,255,255,0.4);font-size:.85rem;margin:0;">Select an election to cast your vote</p>
         </div>
         <div style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#a5b4fc;padding:.4rem 1rem;border-radius:50px;font-size:.82rem;font-weight:600;">
-            {{ $elections->count() }} Active
+            {{ $activeElections->count() }} Active
         </div>
     </div>
 
     <div class="row g-4">
-        @forelse($elections as $election)
+        @forelse($activeElections as $election)
             <div class="col-md-6 col-lg-4">
                 <div class="h-100" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 20px 40px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
                     <!-- Top accent bar -->
@@ -108,11 +108,17 @@
                                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
                                 <i class="bi bi-check2-square"></i> Vote Now
                             </a>
-                            <a href="{{ route('voter.results', $election->id) }}"
-                               style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:all .2s;"
-                               onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
-                                <i class="bi bi-bar-chart"></i> Results
-                            </a>
+                            @if(now() > $election->end_date)
+                                <a href="{{ route('voter.results', $election->id) }}"
+                                   style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:all .2s;"
+                                   onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+                                    <i class="bi bi-bar-chart"></i> Results
+                                </a>
+                            @else
+                                <span title="Results available after election ends" style="background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;display:flex;align-items:center;gap:.4rem;cursor:not-allowed;">
+                                    <i class="bi bi-lock-fill"></i> Results
+                                </span>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -129,5 +135,64 @@
             </div>
         @endforelse
     </div>
+
+    {{-- Ended Elections --}}
+    @if($endedElections->count() > 0)
+        <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
+            <div>
+                <h5 class="fw-bold text-white mb-1"><i class="bi bi-calendar-x me-2" style="color:#ef4444;"></i>Past Elections</h5>
+                <p style="color:rgba(255,255,255,0.4);font-size:.85rem;margin:0;">View results for completed elections</p>
+            </div>
+            <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:.4rem 1rem;border-radius:50px;font-size:.82rem;font-weight:600;">
+                {{ $endedElections->count() }} Closed
+            </div>
+        </div>
+
+        <div class="row g-4">
+            @foreach($endedElections as $election)
+                @php $progress = $voteProgress[$election->id] ?? ['voted'=>0,'total'=>0,'done'=>false]; @endphp
+                <div class="col-md-6 col-lg-4">
+                    <div class="h-100" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;">
+                        <div style="height:4px;background:linear-gradient(90deg,#6b7280,#4b5563);"></div>
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div style="width:44px;height:44px;background:rgba(255,255,255,0.05);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi bi-calendar-x" style="color:rgba(255,255,255,0.3);font-size:1.1rem;"></i>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <span style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;">CLOSED</span>
+                                    @if($progress['done'])
+                                        <span style="background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Voted
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold text-white mb-2">{{ $election->title }}</h5>
+                            <p style="color:rgba(255,255,255,0.35);font-size:.85rem;line-height:1.5;margin-bottom:1.2rem;">{{ $election->description ?? 'This election has ended.' }}</p>
+
+                            <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:.75rem 1rem;margin-bottom:1.2rem;">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <small style="color:rgba(255,255,255,0.3);"><i class="bi bi-calendar-event me-1"></i>Started</small>
+                                    <small style="color:rgba(255,255,255,0.5);font-weight:500;">{{ $election->start_date->format('M d, Y') }}</small>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <small style="color:rgba(255,255,255,0.3);"><i class="bi bi-calendar-x me-1"></i>Ended</small>
+                                    <small style="color:rgba(255,255,255,0.5);font-weight:500;">{{ $election->end_date->format('M d, Y') }}</small>
+                                </div>
+                            </div>
+
+                            <a href="{{ route('voter.results', $election->id) }}"
+                               style="width:100%;background:linear-gradient(135deg,#374151,#1f2937);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:.6rem 1rem;font-size:.88rem;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .2s;"
+                               onmouseover="this.style.background='linear-gradient(135deg,#4b5563,#374151)'" onmouseout="this.style.background='linear-gradient(135deg,#374151,#1f2937)'">
+                                <i class="bi bi-bar-chart-fill"></i> View Results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
 </div>
 @endsection

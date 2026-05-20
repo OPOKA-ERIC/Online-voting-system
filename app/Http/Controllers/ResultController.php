@@ -13,13 +13,13 @@ class ResultController extends Controller
         $election = Election::with(['positions.candidates.votes', 'candidates.votes'])->findOrFail($id);
         $totalVotes = $election->votes()->count();
 
-        // Gate check: only show results if voter has voted or election is closed
-        $hasVoted = Vote::where('user_id', auth()->id())->where('election_id', $id)->exists();
-        $isClosed = now() > $election->end_date;
-
-        if (!$hasVoted && !$isClosed) {
-            return redirect()->route('voter.dashboard')
-                ->with('error', 'Results are available after you vote or the election closes.');
+        // Only show results after the election has ended
+        if (now() <= $election->end_date) {
+            $hasVoted = Vote::where('user_id', auth()->id())->where('election_id', $id)->exists();
+            $message = $hasVoted
+                ? 'You have already voted. Please wait for the results when the election closes.'
+                : 'Results will be available once the election ends.';
+            return redirect()->route('voter.dashboard')->with('error', $message);
         }
 
         // Voter's own votes: position_id => candidate_id
