@@ -19,17 +19,15 @@ Route::get('/', function () {
         'positions' => \App\Models\Position::count(),
     ];
 
-    // Hero demo card: most recent active election with its first position + candidates
+    // Hero demo card: most recent CLOSED election, or fallback to demo
     $heroElection = \App\Models\Election::with(['positions.candidates'])
-        ->where('start_date', '<=', now())
-        ->where('end_date', '>=', now())
-        ->latest()->first()
-        ?? \App\Models\Election::with(['positions.candidates'])->latest()->first();
+        ->where('end_date', '<', now())
+        ->latest()->first();
 
-    // Grab the most recent election that has votes for the live chart
+    // Only show chart data for CLOSED elections — never reveal live/ongoing results
     $chartElection = \App\Models\Election::with(['candidates' => function ($q) {
         $q->withCount('votes');
-    }])->whereHas('votes')->latest()->first();
+    }])->whereHas('votes')->where('end_date', '<', now())->latest()->first();
 
     $chartData = null;
     if ($chartElection) {
